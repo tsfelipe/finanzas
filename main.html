@@ -966,6 +966,7 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;display:fle
 // ═══════════════════════════════════════
 // STATE & STORAGE
 // ═══════════════════════════════════════
+console.log('MiFinanza: JS cargando...');
 const K='mfpv5';
 let PFID=localStorage.getItem(K+'_pfid')||'principal';
 const PFS=()=>JSON.parse(localStorage.getItem(K+'_pfs')||'["principal"]');
@@ -1708,6 +1709,7 @@ function updateGreet(){
 }
 
 function renderInicio(){
+  console.log('renderInicio iniciando...');
   updateGreet();
   const{m,a}=MA();
   const txM=S.tx.filter(t=>esMesAnio(t.fecha,m,a));
@@ -2181,13 +2183,22 @@ function cargarEjemplos(){
 // INIT
 // ═══════════════════════════════════════
 (function init(){
-  if(!S.tx.length&&!S.cuentas.length)cargarEjemplos();
-  applyDk();checkPin();renderTicker();
-  renderInicio();
-  // Event: reto-tipo change
-  setTimeout(()=>{const rt=document.getElementById('reto-tipo');if(rt)rt.addEventListener('change',function(){document.getElementById('reto-custom').style.display=this.value==='custom'?'block':'none';});},500);
-  // Saludo dinámico cada minuto
-  setInterval(()=>{updateGreet();renderConfigBadge();},60000);
+  try{
+    if(!S.tx.length&&!S.cuentas.length)cargarEjemplos();
+    applyDk();checkPin();renderTicker();
+    renderInicio();
+    setTimeout(()=>{
+      const rt=document.getElementById('reto-tipo');
+      if(rt)rt.addEventListener('change',function(){
+        document.getElementById('reto-custom').style.display=this.value==='custom'?'block':'none';
+      });
+    },500);
+    setInterval(()=>{updateGreet();renderConfigBadge();},60000);
+  }catch(e){
+    console.error('MiFinanza Error:',e);
+    const app=document.getElementById('app');
+    if(app)app.innerHTML='<div style="padding:40px;text-align:center;font-family:sans-serif"><div style="font-size:48px;margin-bottom:16px">⚠️</div><div style="font-size:18px;font-weight:700;color:#1c1c1e;margin-bottom:8px">Error al cargar</div><div style="font-size:13px;color:#8e8e93;margin-bottom:20px">'+e.message+'</div><button onclick="localStorage.clear();location.reload()" style="background:#007aff;color:#fff;border:none;border-radius:12px;padding:12px 24px;font-size:14px;font-weight:700;cursor:pointer">Reiniciar app</button></div>';
+  }
 })();
 </script>
 </body>
